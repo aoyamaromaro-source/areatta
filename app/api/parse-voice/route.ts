@@ -44,7 +44,8 @@ export async function POST(req: Request) {
     const content = message.content[0];
     if (content.type !== 'text') throw new Error('Unexpected response');
 
-    const parsed: ParsedIngredient[] = JSON.parse(content.text);
+    const raw = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    const parsed: ParsedIngredient[] = JSON.parse(raw);
     return Response.json({ ingredients: parsed });
   } catch (err) {
     console.error('parse-voice failed', err);
