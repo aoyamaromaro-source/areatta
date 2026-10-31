@@ -1,0 +1,1221 @@
+<title>areatta — 仕様書</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --bg: #F5F7F4;
+    --surface: #FFFFFF;
+    --surface-2: #EDF0EC;
+    --border: #D6DBD5;
+    --text-primary: #1A2B29;
+    --text-secondary: #5A706D;
+    --text-muted: #8FA09E;
+    --accent: #2E7862;
+    --accent-light: #EAF4F0;
+    --warn: #C46B1A;
+    --warn-light: #FDF0E5;
+    --critical: #B03A2E;
+    --critical-light: #FCECEA;
+    --good: #2E7862;
+    --good-light: #EAF4F0;
+    --code-bg: #1E2E2C;
+    --code-text: #A8D5CB;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111A19;
+      --surface: #1C2B29;
+      --surface-2: #243330;
+      --border: #2E4440;
+      --text-primary: #E8F0EF;
+      --text-secondary: #92B0AD;
+      --text-muted: #5A7876;
+      --accent: #4DA88C;
+      --accent-light: #1C3530;
+      --warn: #E8933D;
+      --warn-light: #2C1E0F;
+      --critical: #E06055;
+      --critical-light: #2C1210;
+      --good: #4DA88C;
+      --good-light: #1C3530;
+      --code-bg: #0D1A18;
+      --code-text: #88C9BC;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #111A19;
+    --surface: #1C2B29;
+    --surface-2: #243330;
+    --border: #2E4440;
+    --text-primary: #E8F0EF;
+    --text-secondary: #92B0AD;
+    --text-muted: #5A7876;
+    --accent: #4DA88C;
+    --accent-light: #1C3530;
+    --warn: #E8933D;
+    --warn-light: #2C1E0F;
+    --critical: #E06055;
+    --critical-light: #2C1210;
+    --good: #4DA88C;
+    --good-light: #1C3530;
+    --code-bg: #0D1A18;
+    --code-text: #88C9BC;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    padding-inline: 24px;
+    padding-block: 48px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  .doc-header {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+
+  .doc-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .doc-title {
+    font-family: 'DM Serif Display', 'Hiragino Mincho ProN', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+    color: var(--text-primary);
+    text-wrap: balance;
+    margin-bottom: 16px;
+  }
+
+  .doc-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .doc-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 56ch;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .meta-row span strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ── TOC ─────────────────────────────────────────── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 56px;
+  }
+
+  .toc-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px 24px;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    font-size: 0.88rem;
+  }
+
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero) ".";
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-right: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .toc a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── Section ─────────────────────────────────────── */
+  section { margin-bottom: 56px; }
+
+  h2 {
+    font-family: 'DM Serif Display', 'Hiragino Mincho ProN', serif;
+    font-size: 1.6rem;
+    color: var(--text-primary);
+    text-wrap: balance;
+    border-left: 3px solid var(--accent);
+    padding-left: 14px;
+    margin-bottom: 24px;
+    margin-top: 56px;
+    line-height: 1.3;
+  }
+
+  h2:first-child { margin-top: 0; }
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+
+  h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    max-width: 68ch;
+  }
+
+  /* ── Callout ─────────────────────────────────────── */
+  .callout {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+  }
+
+  .callout-scope {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    color: var(--text-primary);
+  }
+
+  .callout-warn {
+    background: var(--warn-light);
+    border-left: 3px solid var(--warn);
+    color: var(--text-primary);
+  }
+
+  .callout-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+
+  .callout-warn .callout-label { color: var(--warn); }
+
+  /* ── Feature table ───────────────────────────────── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .feature-card.in {
+    border-top: 2px solid var(--good);
+  }
+
+  .feature-card.out {
+    border-top: 2px solid var(--border);
+    opacity: 0.7;
+  }
+
+  .feature-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .feature-card.in .feature-tag { color: var(--good); }
+  .feature-card.out .feature-tag { color: var(--text-muted); }
+
+  .feature-card strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .feature-card span {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  /* ── Screen list ─────────────────────────────────── */
+  .screen-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .screen-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0 14px;
+    align-items: start;
+  }
+
+  .screen-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    padding-top: 2px;
+  }
+
+  .screen-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .screen-desc {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .screen-elements {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 0.72rem;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border-radius: 100px;
+    padding: 2px 10px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Code block ──────────────────────────────────── */
+  pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', 'Menlo', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--code-text);
+  }
+
+  code {
+    font-family: 'JetBrains Mono', 'Menlo', monospace;
+    font-size: 0.84em;
+    background: var(--surface-2);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
+  .code-comment { color: #5A8A80; }
+  .code-key { color: #88CCBB; }
+  .code-str { color: #C9E5A0; }
+  .code-kw { color: #7BBFB5; }
+  .code-type { color: #E0A8FF; }
+
+  /* ── Data table ──────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 16px 0;
+  }
+
+  .data-table th {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  .data-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .type-tag {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Flow ────────────────────────────────────────── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 0;
+    position: relative;
+  }
+
+  .flow-step + .flow-step::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15px;
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+
+  .step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-content strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .step-content span {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ── Prompt block ────────────────────────────────── */
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .prompt-header {
+    background: var(--surface-2);
+    padding: 8px 16px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-body {
+    padding: 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    white-space: pre-wrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── UX rule list ────────────────────────────────── */
+  ul.rule-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  ul.rule-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  ul.rule-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Divider ─────────────────────────────────────── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── Stack badge ─────────────────────────────────── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .stack-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .stack-role {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .stack-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .stack-note {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 3px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding-inline: 16px; }
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<!-- Header -->
+<header class="doc-header">
+  <div class="doc-eyebrow">アプリ仕様書 v1.0 — MVP</div>
+  <h1 class="doc-title"><em>areatta</em><br>冷蔵庫 食材・消費期限 管理アプリ</h1>
+  <p class="doc-subtitle">声で入れる、期限で見る、献立に活かす。シンプルに日々の冷蔵庫管理を解決するWebアプリ。</p>
+  <div class="meta-row">
+    <span><strong>バージョン</strong> MVP 1.0</span>
+    <span><strong>作成日</strong> 2026-09-15</span>
+    <span><strong>フェーズ</strong> 個人利用 → 公開</span>
+    <span><strong>デプロイ</strong> Vercel</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-label">目次</div>
+  <ol>
+    <li><a href="#concept">コンセプト・解決課題</a></li>
+    <li><a href="#scope">MVPスコープ</a></li>
+    <li><a href="#screens">画面構成</a></li>
+    <li><a href="#flows">ユーザーフロー</a></li>
+    <li><a href="#data">データモデル</a></li>
+    <li><a href="#stack">技術スタック</a></li>
+    <li><a href="#api">Claude API連携仕様</a></li>
+    <li><a href="#ux">UI・UXガイドライン</a></li>
+    <li><a href="#future">将来拡張（スコープ外）</a></li>
+  </ol>
+</nav>
+
+<!-- 1. Concept -->
+<section id="concept">
+  <h2>01. コンセプト・解決課題</h2>
+  <p>買い物中の「これ家にあったっけ？」、調理前の「早く使わないといけないのどれだっけ？」、献立を決めるときの「冷蔵庫の中身から何作れる？」——この3つのシーンを最小限の操作で解決する。</p>
+
+  <div class="callout callout-scope">
+    <div class="callout-label">コアバリュー</div>
+    冷蔵庫に食材を<strong>入れながら声で登録</strong>→ 期限が近い順に一覧表示 → 「使い切り」メニューをAIが提案する。この一連の流れだけをシンプルに実現する。
+  </div>
+
+  <h3>3つの使用シーン</h3>
+
+  <div class="screen-list">
+    <div class="screen-item">
+      <div class="screen-num">A</div>
+      <div>
+        <div class="screen-name">🛒 スーパーで</div>
+        <div class="screen-desc">「あの食材、まだ残ってたっけ？いつまで使えるんだっけ？」<br>→ スマホで一覧を見るだけ。検索不要、開いた瞬間に全部見える。</div>
+      </div>
+    </div>
+    <div class="screen-item">
+      <div class="screen-num">B</div>
+      <div>
+        <div class="screen-name">🧊 帰宅・買い物を冷蔵庫に入れながら</div>
+        <div class="screen-desc">「牛乳500ml期限9月20日、卵6個期限9月25日」と読み上げるだけ。<br>→ AIが自動解析して構造化データとして保存する。</div>
+      </div>
+    </div>
+    <div class="screen-item">
+      <div class="screen-num">C</div>
+      <div>
+        <div class="screen-name">🍳 料理するとき</div>
+        <div class="screen-desc">「今日何作ろう？期限が近いものから使いたい」<br>→ 「おまかせ献立」ボタンでAIがレシピを提案。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Scope -->
+<section id="scope">
+  <h2>02. MVPスコープ</h2>
+  <p>「なんでもできるアプリ」ではなく、3つのシーンを解決することに集中する。</p>
+
+  <div class="feature-grid">
+    <div class="feature-card in">
+      <div class="feature-tag">✓ MVP IN</div>
+      <strong>音声入力で食材登録</strong>
+      <span>Web Speech API + Claude APIで読み上げテキストを構造化データへ変換</span>
+    </div>
+    <div class="feature-card in">
+      <div class="feature-tag">✓ MVP IN</div>
+      <strong>消費期限順の一覧表示</strong>
+      <span>今日・明日・今週・それ以降でグループ表示。期限切れは最上部に赤表示</span>
+    </div>
+    <div class="feature-card in">
+      <div class="feature-tag">✓ MVP IN</div>
+      <strong>食材の編集・削除</strong>
+      <span>登録内容の手動修正。使い切ったものの削除</span>
+    </div>
+    <div class="feature-card in">
+      <div class="feature-tag">✓ MVP IN</div>
+      <strong>AI献立提案</strong>
+      <span>期限が近い食材を優先してClaude APIがレシピを3〜5品提案</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">— スコープ外</div>
+      <strong>写真での食材認識</strong>
+      <span>将来対応。まずは音声入力に集中する</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">— スコープ外</div>
+      <strong>複数ユーザー・家族共有</strong>
+      <span>将来対応。MVPは個人利用を想定</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">— スコープ外</div>
+      <strong>買い物リスト自動生成</strong>
+      <span>将来対応</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">— スコープ外</div>
+      <strong>栄養管理・カロリー計算</strong>
+      <span>スコープ外。コンセプト外</span>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Screens -->
+<section id="screens">
+  <h2>03. 画面構成</h2>
+  <p>ボトムナビゲーションで3画面を切り替える。シンプルに3タブのみ。</p>
+
+  <div class="screen-list">
+    <div class="screen-item">
+      <div class="screen-num">S1</div>
+      <div>
+        <div class="screen-name">冷蔵庫一覧（ホーム）</div>
+        <div class="screen-desc">登録済み食材を消費期限の近い順に表示。グルーピング: 期限切れ / 今日 / 明日 / 今週 / それ以降。右上の「＋」ボタンで音声登録へ。「おまかせ献立」ボタンを常設。</div>
+        <div class="screen-elements">
+          <span class="chip">期限別グループ</span>
+          <span class="chip">スワイプで削除</span>
+          <span class="chip">タップで編集</span>
+          <span class="chip">残り日数バッジ</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-item">
+      <div class="screen-num">S2</div>
+      <div>
+        <div class="screen-name">音声登録</div>
+        <div class="screen-desc">大きなマイクボタンを押して読み上げる → 認識テキストをリアルタイム表示 → Claude APIで解析 → 確認画面で修正可能 → 保存。連続登録モード対応（次々と読み上げられる）。</div>
+        <div class="screen-elements">
+          <span class="chip">マイクボタン</span>
+          <span class="chip">リアルタイム文字起こし</span>
+          <span class="chip">解析結果プレビュー</span>
+          <span class="chip">手動修正フィールド</span>
+          <span class="chip">連続登録</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-item">
+      <div class="screen-num">S3</div>
+      <div>
+        <div class="screen-name">献立提案</div>
+        <div class="screen-desc">「早く使いたい食材から」「食べたいもの優先」の2モードで切り替え。食べたいもの優先の場合はフリーテキストでリクエスト入力。Claude APIが3〜5品のレシピを提案。レシピは食材・手順・目安時間を表示。</div>
+        <div class="screen-elements">
+          <span class="chip">モード切替</span>
+          <span class="chip">リクエスト入力</span>
+          <span class="chip">レシピカード</span>
+          <span class="chip">使用食材ハイライト</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-item">
+      <div class="screen-num">S4</div>
+      <div>
+        <div class="screen-name">食材編集（モーダル）</div>
+        <div class="screen-desc">S1からタップで開くモーダル。食材名・数量・消費期限・メモを編集可能。削除ボタンあり。</div>
+        <div class="screen-elements">
+          <span class="chip">インラインモーダル</span>
+          <span class="chip">日付ピッカー</span>
+          <span class="chip">削除確認</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>ナビゲーション構造</h3>
+  <pre><code><span class="code-comment">// ボトムタブナビゲーション</span>
+[🧊 冷蔵庫]  [🎤 登録]  [🍳 献立]</code></pre>
+</section>
+
+<!-- 4. User Flows -->
+<section id="flows">
+  <h2>04. ユーザーフロー</h2>
+
+  <h3>フロー A: 音声で食材を登録する</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-dot">1</div>
+      <div class="step-content">
+        <strong>「登録」タブをタップ</strong>
+        <span>大きなマイクボタンが表示された画面に遷移</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-dot">2</div>
+      <div class="step-content">
+        <strong>マイクボタンをタップして話す</strong>
+        <span>「牛乳500ml期限9月20日、卵6個期限25日」などと読み上げる。テキストがリアルタイムで画面に表示される。</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-dot">3</div>
+      <div class="step-content">
+        <strong>「解析」ボタンをタップ</strong>
+        <span>Claude API (Haiku)に送信。パース結果として「食材カード」が並んで表示される。数秒で完了。</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-dot">4</div>
+      <div class="step-content">
+        <strong>内容を確認・修正して「保存」</strong>
+        <span>間違いがあればフィールドを直接編集。問題なければそのまま「保存」→ Supabaseに登録 → 一覧画面に戻る。</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>フロー B: 献立を提案してもらう</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-dot">1</div>
+      <div class="step-content">
+        <strong>「献立」タブをタップ</strong>
+        <span>モード選択と「提案を出す」ボタンが表示される</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-dot">2</div>
+      <div class="step-content">
+        <strong>モードを選ぶ</strong>
+        <span>「早く使いたい順」→ そのままボタン押下。「食べたいもの優先」→ テキスト入力（例：「今日は煮物系が食べたい」）</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-dot">3</div>
+      <div class="step-content">
+        <strong>「提案を出す」をタップ</strong>
+        <span>Claude API (Sonnet)に送信。3〜5品のレシピカードが返ってくる。各カードに食材・手順・調理時間を表示。</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Data Model -->
+<section id="data">
+  <h2>05. データモデル</h2>
+
+  <h3>Supabase テーブル設計</h3>
+
+  <h4>ingredients テーブル</h4>
+  <div style="overflow-x:auto">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>カラム名</th>
+          <th>型</th>
+          <th>説明</th>
+          <th>例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>id</td>
+          <td><span class="type-tag">UUID</span></td>
+          <td>PK、自動生成</td>
+          <td>gen_random_uuid()</td>
+        </tr>
+        <tr>
+          <td>name</td>
+          <td><span class="type-tag">TEXT</span></td>
+          <td>食材名。NOT NULL</td>
+          <td>「牛乳」「鶏もも肉」</td>
+        </tr>
+        <tr>
+          <td>quantity</td>
+          <td><span class="type-tag">TEXT</span></td>
+          <td>数量・単位。自由テキスト</td>
+          <td>「500ml」「2枚」「少し」</td>
+        </tr>
+        <tr>
+          <td>expiry_date</td>
+          <td><span class="type-tag">DATE</span></td>
+          <td>消費期限。NULLは「不明」扱い</td>
+          <td>2026-09-25</td>
+        </tr>
+        <tr>
+          <td>category</td>
+          <td><span class="type-tag">TEXT</span></td>
+          <td>カテゴリ。enum候補: meat / dairy / vegetable / seasoning / other</td>
+          <td>「dairy」</td>
+        </tr>
+        <tr>
+          <td>note</td>
+          <td><span class="type-tag">TEXT</span></td>
+          <td>メモ。任意</td>
+          <td>「開封済み」</td>
+        </tr>
+        <tr>
+          <td>created_at</td>
+          <td><span class="type-tag">TIMESTAMPTZ</span></td>
+          <td>登録日時。自動</td>
+          <td>NOW()</td>
+        </tr>
+        <tr>
+          <td>updated_at</td>
+          <td><span class="type-tag">TIMESTAMPTZ</span></td>
+          <td>更新日時。自動</td>
+          <td>NOW()</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>DDL</h4>
+  <pre><code><span class="code-kw">CREATE TABLE</span> ingredients (
+  id           <span class="code-type">UUID</span>         <span class="code-kw">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  name         <span class="code-type">TEXT</span>         <span class="code-kw">NOT NULL</span>,
+  quantity     <span class="code-type">TEXT</span>,
+  expiry_date  <span class="code-type">DATE</span>,
+  category     <span class="code-type">TEXT</span>         <span class="code-kw">DEFAULT</span> <span class="code-str">'other'</span>,
+  note         <span class="code-type">TEXT</span>,
+  created_at   <span class="code-type">TIMESTAMPTZ</span>  <span class="code-kw">DEFAULT</span> NOW(),
+  updated_at   <span class="code-type">TIMESTAMPTZ</span>  <span class="code-kw">DEFAULT</span> NOW()
+);
+
+<span class="code-comment">-- 消費期限でのソートが多いので index を貼る</span>
+<span class="code-kw">CREATE INDEX</span> idx_ingredients_expiry ON ingredients (expiry_date ASC NULLS LAST);
+
+<span class="code-comment">-- updated_at の自動更新 trigger</span>
+<span class="code-kw">CREATE OR REPLACE FUNCTION</span> update_updated_at()
+  <span class="code-kw">RETURNS TRIGGER AS</span> $$
+  <span class="code-kw">BEGIN</span>
+    NEW.updated_at = NOW();
+    <span class="code-kw">RETURN</span> NEW;
+  <span class="code-kw">END</span>;
+  $$ language <span class="code-str">'plpgsql'</span>;
+
+<span class="code-kw">CREATE TRIGGER</span> set_updated_at
+  <span class="code-kw">BEFORE UPDATE ON</span> ingredients
+  <span class="code-kw">FOR EACH ROW EXECUTE PROCEDURE</span> update_updated_at();</code></pre>
+
+  <h4>フロントエンド型定義（TypeScript）</h4>
+  <pre><code><span class="code-kw">export type</span> <span class="code-type">Category</span> = <span class="code-str">'meat'</span> | <span class="code-str">'dairy'</span> | <span class="code-str">'vegetable'</span> | <span class="code-str">'seasoning'</span> | <span class="code-str">'other'</span>;
+
+<span class="code-kw">export interface</span> <span class="code-type">Ingredient</span> {
+  id:          string;
+  name:        string;
+  quantity:    string | null;
+  expiry_date: string | null;  <span class="code-comment">// ISO 8601 'YYYY-MM-DD'</span>
+  category:    <span class="code-type">Category</span>;
+  note:        string | null;
+  created_at:  string;
+  updated_at:  string;
+}
+
+<span class="code-comment">// 音声認識→Claude解析の出力型</span>
+<span class="code-kw">export interface</span> <span class="code-type">ParsedIngredient</span> {
+  name:        string;
+  quantity:    string | null;
+  expiry_date: string | null;  <span class="code-comment">// 'YYYY-MM-DD' or null</span>
+  category:    <span class="code-type">Category</span>;
+}</code></pre>
+</section>
+
+<!-- 6. Tech Stack -->
+<section id="stack">
+  <h2>06. 技術スタック</h2>
+
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-role">フロントエンド</div>
+      <div class="stack-name">Next.js 14</div>
+      <div class="stack-note">App Router / TypeScript</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">スタイリング</div>
+      <div class="stack-name">Tailwind CSS</div>
+      <div class="stack-note">shadcn/ui コンポーネント活用</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">データベース</div>
+      <div class="stack-name">Supabase</div>
+      <div class="stack-note">PostgreSQL / @supabase/supabase-js</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">音声認識</div>
+      <div class="stack-name">Web Speech API</div>
+      <div class="stack-note">ブラウザ標準。モバイルSafari対応確認要</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">AI解析・提案</div>
+      <div class="stack-name">Anthropic SDK</div>
+      <div class="stack-note">@anthropic-ai/sdk</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-role">デプロイ</div>
+      <div class="stack-name">Vercel</div>
+      <div class="stack-note">API Routes → Edge Functions</div>
+    </div>
+  </div>
+
+  <h3>ディレクトリ構成（推奨）</h3>
+  <pre><code>areatta/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx              <span class="code-comment"># 一覧（S1）</span>
+│   ├── register/
+│   │   └── page.tsx          <span class="code-comment"># 音声登録（S2）</span>
+│   ├── menu/
+│   │   └── page.tsx          <span class="code-comment"># 献立提案（S3）</span>
+│   └── api/
+│       ├── parse-voice/
+│       │   └── route.ts      <span class="code-comment"># Claude Haiku: 音声テキスト解析</span>
+│       └── suggest-menu/
+│           └── route.ts      <span class="code-comment"># Claude Sonnet: 献立提案</span>
+├── components/
+│   ├── BottomNav.tsx
+│   ├── IngredientCard.tsx
+│   ├── IngredientGroup.tsx
+│   ├── VoiceRecorder.tsx
+│   ├── ParsedPreview.tsx
+│   └── RecipeCard.tsx
+├── lib/
+│   ├── supabase.ts
+│   ├── anthropic.ts
+│   └── date-utils.ts         <span class="code-comment"># 残り日数計算など</span>
+└── types/
+    └── index.ts</code></pre>
+
+  <h3>環境変数 (.env.local)</h3>
+  <pre><code>NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+ANTHROPIC_API_KEY=sk-ant-...  <span class="code-comment"># サーバーサイドのみ</span></code></pre>
+</section>
+
+<!-- 7. Claude API -->
+<section id="api">
+  <h2>07. Claude API 連携仕様</h2>
+
+  <h3>① 音声テキスト → 構造化データ（/api/parse-voice）</h3>
+  <p>使用モデル: <code>claude-haiku-20241022</code>（速度・コスト重視）</p>
+
+  <div class="prompt-block">
+    <div class="prompt-header">System Prompt — parse-voice</div>
+    <div class="prompt-body">あなたは冷蔵庫の食材管理アシスタントです。
+ユーザーが読み上げた音声テキストから、食材情報を抽出してJSONを返してください。
+
+出力は必ず以下のJSON配列形式のみで返すこと。説明文は不要。
+
+[
+  {
+    "name": "食材名（必須）",
+    "quantity": "数量と単位（不明なら null）",
+    "expiry_date": "消費期限 YYYY-MM-DD形式（不明なら null）",
+    "category": "meat|dairy|vegetable|seasoning|other のいずれか"
+  }
+]
+
+ルール:
+- 期限が「9月20日」などの場合、現在年（${currentYear}年）として補完する
+- 「明日」「来週」などの相対日付は今日（${today}）を基準に変換する
+- 数量が不明でも name が取れれば登録する
+- 複数食材が混在している場合はすべて抽出する</div>
+  </div>
+
+  <h4>API Route 実装（route.ts）</h4>
+  <pre><code><span class="code-kw">import</span> Anthropic <span class="code-kw">from</span> <span class="code-str">'@anthropic-ai/sdk'</span>;
+
+<span class="code-kw">export async function</span> POST(req: Request) {
+  <span class="code-kw">const</span> { text } = <span class="code-kw">await</span> req.json();
+  <span class="code-kw">const</span> client = <span class="code-kw">new</span> Anthropic();
+
+  <span class="code-kw">const</span> today = <span class="code-kw">new</span> Date().toISOString().split(<span class="code-str">'T'</span>)[0];
+  <span class="code-kw">const</span> currentYear = <span class="code-kw">new</span> Date().getFullYear();
+
+  <span class="code-kw">const</span> message = <span class="code-kw">await</span> client.messages.create({
+    model: <span class="code-str">'claude-haiku-20241022'</span>,
+    max_tokens: 1024,
+    system: buildSystemPrompt(today, currentYear),
+    messages: [{ role: <span class="code-str">'user'</span>, content: text }],
+  });
+
+  <span class="code-kw">const</span> content = message.content[0];
+  <span class="code-kw">if</span> (content.type !== <span class="code-str">'text'</span>) <span class="code-kw">throw new</span> Error(<span class="code-str">'Unexpected response'</span>);
+
+  <span class="code-kw">const</span> parsed = JSON.parse(content.text);
+  <span class="code-kw">return</span> Response.json({ ingredients: parsed });
+}</code></pre>
+
+  <hr>
+
+  <h3>② 献立提案（/api/suggest-menu）</h3>
+  <p>使用モデル: <code>claude-sonnet-4-5</code>（品質重視）</p>
+
+  <div class="prompt-block">
+    <div class="prompt-header">System Prompt — suggest-menu</div>
+    <div class="prompt-body">あなたは家庭料理の献立アドバイザーです。
+冷蔵庫の食材リストを受け取り、実用的なレシピを3〜5品提案してください。
+
+モード: ${mode}
+${mode === 'quick' ? '- 期限切れに近い食材を優先的に使うレシピを提案してください' : ''}
+${mode === 'request' ? `- ユーザーリクエスト: ${request}` : ''}
+
+出力は以下のJSON配列形式のみで返すこと:
+[
+  {
+    "title": "料理名",
+    "time_minutes": 調理時間（分・整数）,
+    "ingredients_used": ["使用する食材名", ...],  // 冷蔵庫リストにある食材のみ
+    "steps": ["手順1", "手順2", ...],  // 3〜5ステップで簡潔に
+    "memo": "一言コメント（任意）"
+  }
+]</div>
+  </div>
+
+  <h4>リクエスト Body</h4>
+  <pre><code>{
+  <span class="code-key">"mode"</span>: <span class="code-str">"quick"</span> | <span class="code-str">"request"</span>,
+  <span class="code-key">"request"</span>: <span class="code-str">"煮物が食べたい"</span>,  <span class="code-comment">// mode === 'request' のときのみ</span>
+  <span class="code-key">"ingredients"</span>: [
+    { <span class="code-key">"name"</span>: <span class="code-str">"鶏もも肉"</span>, <span class="code-key">"quantity"</span>: <span class="code-str">"2枚"</span>, <span class="code-key">"expiry_date"</span>: <span class="code-str">"2026-09-16"</span> },
+    { <span class="code-key">"name"</span>: <span class="code-str">"大根"</span>, <span class="code-key">"quantity"</span>: <span class="code-str">"半分"</span>, <span class="code-key">"expiry_date"</span>: <span class="code-str">"2026-09-18"</span> }
+  ]
+}</code></pre>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">コスト最適化のポイント</div>
+    音声解析は <strong>Haiku</strong>（安価・高速）、献立提案のみ <strong>Sonnet</strong> を使う。
+    送信する食材リストは期限切れ含む全件ではなく、<strong>期限が近い順に上位15件</strong>に絞るとトークン節約になる。
+  </div>
+</section>
+
+<!-- 8. UX -->
+<section id="ux">
+  <h2>08. UI・UXガイドライン</h2>
+
+  <h3>一覧画面の表示ロジック</h3>
+  <ul class="rule-list">
+    <li>残り日数 = <code>expiry_date - today</code>。0日が「今日まで」、負数が「期限切れ」。</li>
+    <li>グループ順: 期限切れ（赤）→ 今日（オレンジ）→ 明日（黄）→ 今週（通常）→ それ以降（淡色）→ 期限不明（最下部）</li>
+    <li>各グループ内はさらに expiry_date ASC で並ぶ</li>
+    <li>expiry_date が NULL の食材は「期限不明」グループに入れ、登録日の古い順に表示する</li>
+    <li>スワイプ左で「削除」ボタン、スワイプ右で「使い切り（削除）」ショートカット</li>
+  </ul>
+
+  <h3>音声登録のUX</h3>
+  <ul class="rule-list">
+    <li>マイクボタンは画面の中央寄り・大きく（最低56px）。タップしやすいこと</li>
+    <li>録音中はボタンが赤くなり、パルスアニメーションで状態を示す</li>
+    <li>文字起こし中はリアルタイムでテキストが流れる（確定文字と認識中文字を区別するスタイルで）</li>
+    <li>「もう一度登録」ボタンで連続入力できる。冷蔵庫に複数食材を入れながら繰り返せる</li>
+    <li>解析失敗時はトースト通知＋テキストを手動入力に切り替えるフォールバック</li>
+  </ul>
+
+  <h3>モバイルファースト原則</h3>
+  <ul class="rule-list">
+    <li>タップターゲットは最低44px × 44px（Apple HIG準拠）</li>
+    <li>ボトムナビゲーションはセーフエリア対応（<code>pb-safe</code>）</li>
+    <li>フォントサイズは最低14px。期限の残り日数は大きく表示して一目でわかるように</li>
+    <li>読み込みはスケルトンUIで。スピナーは使わない</li>
+    <li>オフライン時は一覧表示のみ（キャッシュ可能な範囲で）、登録・AI機能はオフライン非対応で明示する</li>
+  </ul>
+
+  <h3>カテゴリ別カラーコード（UI用）</h3>
+  <div style="overflow-x:auto">
+    <table class="data-table">
+      <thead><tr><th>カテゴリ</th><th>日本語</th><th>アイコン</th><th>アクセントカラー（案）</th></tr></thead>
+      <tbody>
+        <tr><td>meat</td><td>肉・魚</td><td>🥩</td><td>#C0392B（ローズ）</td></tr>
+        <tr><td>dairy</td><td>乳製品・卵</td><td>🥛</td><td>#2980B9（ブルー）</td></tr>
+        <tr><td>vegetable</td><td>野菜・果物</td><td>🥦</td><td>#27AE60（グリーン）</td></tr>
+        <tr><td>seasoning</td><td>調味料・乾物</td><td>🧂</td><td>#8E44AD（パープル）</td></tr>
+        <tr><td>other</td><td>その他</td><td>📦</td><td>#7F8C8D（グレー）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9. Future -->
+<section id="future">
+  <h2>09. 将来拡張（スコープ外）</h2>
+  <p>MVPリリース後に検討する機能。実装優先度を参考に記載。</p>
+
+  <div class="feature-grid">
+    <div class="feature-card out">
+      <div class="feature-tag">Phase 2</div>
+      <strong>写真での食材認識</strong>
+      <span>冷蔵庫を撮影 → Claude Vision APIで食材を自動検出。音声入力との併用を想定。</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">Phase 2</div>
+      <strong>家族共有・マルチユーザー</strong>
+      <span>Supabase Authで認証を追加し、世帯単位のデータ共有を実現。</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">Phase 2</div>
+      <strong>プッシュ通知</strong>
+      <span>「明日期限が来る食材があります」を朝に通知。PWA対応で実装。</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">Phase 3</div>
+      <strong>買い物リスト連携</strong>
+      <span>在庫が減ったものを自動的に買い物リストへ。LINE連携なども視野に。</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">Phase 3</div>
+      <strong>使い切り記録・統計</strong>
+      <span>「今月の食品ロス率」「よく使う食材ランキング」などの振り返り機能。</span>
+    </div>
+    <div class="feature-card out">
+      <div class="feature-tag">収益化</div>
+      <strong>プレミアムプラン</strong>
+      <span>AI献立提案の無制限利用、写真認識、家族共有などを有料機能として提供。</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="callout callout-scope">
+    <div class="callout-label">Claude Codeへの指示</div>
+    まずは <strong>S1（一覧）→ S2（音声登録）→ Supabase保存</strong> までをPhase 1として実装してください。献立提案（S3）はPhase 2で追加します。Tailwind CSSとshadcn/uiを使い、モバイルファーストで実装してください。
+  </div>
+</section>

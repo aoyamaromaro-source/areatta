@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# areatta — 冷蔵庫 食材・消費期限 管理アプリ
 
-## Getting Started
+声で入れる、期限で見る、献立に活かす。シンプルに日々の冷蔵庫管理を解決するWebアプリ（MVP）。
 
-First, run the development server:
+仕様書: `areatta-spec.html`
+
+## セットアップ
+
+### 1. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 2. Supabase プロジェクトを作成
+
+1. https://supabase.com でプロジェクトを新規作成
+2. SQL Editor で `supabase/schema.sql` の内容を実行し、`ingredients` テーブルを作成
+3. プロジェクトの Settings → API から `Project URL` と `anon public key` を取得
+
+### 3. Anthropic API キーを取得
+
+https://console.anthropic.com でAPIキーを発行する（音声解析・献立提案に使用）
+
+### 4. 環境変数を設定
+
+`.env.local.example` をコピーして `.env.local` を作成し、値を埋める。
+
+```bash
+cp .env.local.example .env.local
+```
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### 5. 開発サーバー起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 を開く。音声入力（Web Speech API）はブラウザのマイク許可が必要なため、`localhost` または HTTPS 環境でのみ動作します。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 画面構成
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 画面 | パス | 内容 |
+|---|---|---|
+| 冷蔵庫一覧 (S1) | `/` | 消費期限順の一覧。タップで編集モーダル、スワイプで削除 |
+| 音声登録 (S2) | `/register` | マイクで読み上げ→Claude Haikuで解析→確認・保存 |
+| 献立提案 (S3) | `/menu` | 期限優先 or リクエスト優先でClaude Sonnetがレシピ提案 |
 
-## Learn More
+## 技術スタック
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js (App Router) / TypeScript
+- Tailwind CSS v4 + shadcn/ui
+- Supabase (PostgreSQL)
+- Anthropic SDK (`@anthropic-ai/sdk`)
+- Web Speech API（音声認識、ブラウザ標準）
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## デプロイ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Vercel にデプロイする場合は、上記3つの環境変数をプロジェクト設定の Environment Variables に登録してください。
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+vercel deploy
+```
