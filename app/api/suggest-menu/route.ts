@@ -48,7 +48,8 @@ export async function POST(req: Request) {
     const content = message.content[0];
     if (content.type !== 'text') throw new Error('Unexpected response');
 
-    const recipes: Recipe[] = JSON.parse(content.text);
+    const raw = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    const recipes: Recipe[] = JSON.parse(raw);
     return Response.json({ recipes });
   } catch (err) {
     console.error('suggest-menu failed', err);
