@@ -48,6 +48,26 @@ export default function RegisterPage() {
     }
   }
 
+  async function handleDirectSave() {
+    if (!transcript.trim()) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('ingredients').insert({
+        name: transcript.trim(),
+        quantity: null,
+        expiry_date: null,
+        category: 'other',
+      });
+      if (error) throw error;
+      toast.success('登録しました');
+      resetForNext();
+    } catch {
+      toast.error('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleSave() {
     if (items.length === 0) return;
     setSaving(true);
@@ -101,9 +121,24 @@ export default function RegisterPage() {
             />
           </div>
 
-          <Button onClick={handleParse} disabled={!transcript.trim() || parsing} size="lg">
-            {parsing ? '解析中…' : '解析する'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleDirectSave}
+              disabled={!transcript.trim() || saving || parsing}
+            >
+              {saving ? '登録中…' : 'そのまま登録'}
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleParse}
+              disabled={!transcript.trim() || parsing || saving}
+              size="lg"
+            >
+              {parsing ? '解析中…' : 'AI解析して登録'}
+            </Button>
+          </div>
         </>
       )}
 
